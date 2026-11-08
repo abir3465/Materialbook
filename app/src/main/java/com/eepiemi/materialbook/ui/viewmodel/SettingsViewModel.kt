@@ -15,6 +15,7 @@ import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.HIDE_REEL
 import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.HIDE_STORIES
 import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.HIDE_SUGGESTED
 import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.IMMERSIVE_MODE
+import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.MESSAGES_DESKTOP
 import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.PINCH_TO_ZOOM
 import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.REMOVE_ADS
 import com.eepiemi.materialbook.data.local.SettingsDataStore.Companion.STICKY_NAVBAR
@@ -101,6 +102,11 @@ class SettingsViewModel(
     val hideGroups = dataStore.hideGroups.stateIn(
         scope = viewModelScope,
         initialValue = initialPrefs[HIDE_GROUPS] ?: false,
+        started = SharingStarted.WhileSubscribed()
+    )
+    val messagesDesktop = dataStore.messagesDesktop.stateIn(
+        scope = viewModelScope,
+        initialValue = initialPrefs[MESSAGES_DESKTOP] ?: false,
         started = SharingStarted.WhileSubscribed()
     )
     val isRevertDesktop = dataStore.revertDesktop.stateIn(
@@ -190,6 +196,12 @@ class SettingsViewModel(
     fun setHideGroups(hideGroups: Boolean) {
         viewModelScope.launch {
             dataStore.setHideGroups(hideGroups)
+        }
+    }
+
+    fun setMessagesDesktop(messagesDesktop: Boolean) {
+        viewModelScope.launch {
+            dataStore.setMessagesDesktop(messagesDesktop)
         }
     }
 
