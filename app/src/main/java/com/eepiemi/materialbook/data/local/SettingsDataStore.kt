@@ -27,6 +27,7 @@ class SettingsDataStore(private val context: Context) {
         val HIDE_PEOPLE_YOU_MAY_KNOW = booleanPreferencesKey("hide_people_you_may_know")
         val HIDE_GROUPS = booleanPreferencesKey("hide_groups")
         val isRevertDesktop = booleanPreferencesKey("is_revert_desktop")
+        val MESSAGES_DESKTOP = booleanPreferencesKey("messages_desktop")
     }
 
     val prefs = context.dataStore.data
@@ -34,6 +35,11 @@ class SettingsDataStore(private val context: Context) {
     val revertDesktop = context.dataStore.data.map { it[isRevertDesktop] ?: false }
     suspend fun setRevertDesktop(revertDesktop: Boolean) {
         context.dataStore.edit { it[isRevertDesktop] = revertDesktop }
+    }
+
+    val messagesDesktop = context.dataStore.data.map { it[MESSAGES_DESKTOP] ?: false }
+    suspend fun setMessagesDesktop(messagesDesktop: Boolean) {
+        context.dataStore.edit { it[MESSAGES_DESKTOP] = messagesDesktop }
     }
 
     val removeAds = context.dataStore.data.map { it[REMOVE_ADS] ?: true }
