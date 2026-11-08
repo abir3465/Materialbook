@@ -1,9 +1,13 @@
 package com.eepiemi.materialbook.utils
 
+import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebView
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,17 +19,44 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.multiplatform.webview.web.AccompanistWebChromeClient
 import com.multiplatform.webview.web.PlatformWebViewParams
 
 // src: https://github.com/KevinnZou/compose-webview-multiplatform
 
 @Composable
-fun fileChooserWebViewParams(): PlatformWebViewParams {
+fun fileChooserWebViewParams(
+    allowMediaCapture: () -> Boolean = { false }
+): PlatformWebViewParams {
+    val context = LocalContext.current
     var fileChooserIntent by remember { mutableStateOf<Intent?>(null) }
 
+    // Camera / microphone requests coming from the page (audio and video calls).
+    var pendingPermission by remember { mutableStateOf<PermissionRequest?>(null) }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+        ) {
+            val request = pendingPermission
+            pendingPermission = null
+            if (request != null) finishPermissionRequest(context, request)
+        }
+
     val webViewChromeClient =
-        remember { FileChoosableWebChromeClient { fileChooserIntent = it } }
+        remember {
+            FileChoosableWebChromeClient(
+                context = context,
+                allowMediaCapture = allowMediaCapture,
+                onShowFilePicker = { fileChooserIntent = it },
+                onPermissionNeeded = { request, permissions ->
+                    pendingPermission?.deny()
+                    pendingPermission = request
+                    permissionLauncher.launch(permissions)
+                },
+            )
+        }
 
     val launcher =
         rememberLauncherForActivityResult(
@@ -72,10 +103,56 @@ private fun Intent.getUris(): List<Uri>? {
     return (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }
 }
 
+private fun androidPermissionFor(resource: String): String? = when (resource) {
+    PermissionRequest.RESOURCE_VIDEO_CAPTURE -> Manifest.permission.CAMERA
+    PermissionRequest.RESOURCE_AUDIO_CAPTURE -> Manifest.permission.RECORD_AUDIO
+    else -> null
+}
+
+private fun isGranted(context: Context, permission: String): Boolean =
+    ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+private fun isTrustedOrigin(request: PermissionRequest): Boolean {
+    val host = request.origin?.host?.lowercase() ?: return false
+    return host == "facebook.com" || host.endsWith(".facebook.com") ||
+        host == "messenger.com" || host.endsWith(".messenger.com")
+}
+
+/** Grants what Android already allows, denies the rest. */
+private fun finishPermissionRequest(context: Context, request: PermissionRequest) {
+    val allowed = request.resources.filter { resource ->
+        val permission = androidPermissionFor(resource)
+        permission != null && isGranted(context, permission)
+    }.toTypedArray()
+
+    if (allowed.isEmpty()) request.deny() else request.grant(allowed)
+}
+
 private class FileChoosableWebChromeClient(
+    private val context: Context,
+    private val allowMediaCapture: () -> Boolean,
     private val onShowFilePicker: (Intent) -> Unit,
+    private val onPermissionNeeded: (PermissionRequest, Array<String>) -> Unit,
 ) : AccompanistWebChromeClient() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
+
+    override fun onPermissionRequest(request: PermissionRequest) {
+        if (!allowMediaCapture() || !isTrustedOrigin(request)) {
+            request.deny()
+            return
+        }
+
+        val missing = request.resources
+            .mapNotNull(::androidPermissionFor)
+            .distinct()
+            .filter { !isGranted(context, it) }
+
+        if (missing.isEmpty()) {
+            finishPermissionRequest(context, request)
+        } else {
+            onPermissionNeeded(request, missing.toTypedArray())
+        }
+    }
 
     override fun onShowFileChooser(
         webView: WebView?,
