@@ -47,7 +47,7 @@ fun fileChooserWebViewParams(
     val webViewChromeClient =
         remember {
             FileChoosableWebChromeClient(
-                context = context,
+                appContext = context,
                 allowMediaCapture = allowMediaCapture,
                 onShowFilePicker = { fileChooserIntent = it },
                 onPermissionNeeded = { request, permissions ->
@@ -129,7 +129,7 @@ private fun finishPermissionRequest(context: Context, request: PermissionRequest
 }
 
 private class FileChoosableWebChromeClient(
-    private val context: Context,
+    private val appContext: Context,
     private val allowMediaCapture: () -> Boolean,
     private val onShowFilePicker: (Intent) -> Unit,
     private val onPermissionNeeded: (PermissionRequest, Array<String>) -> Unit,
@@ -145,10 +145,10 @@ private class FileChoosableWebChromeClient(
         val missing = request.resources
             .mapNotNull(::androidPermissionFor)
             .distinct()
-            .filter { !isGranted(context, it) }
+            .filter { !isGranted(appContext, it) }
 
         if (missing.isEmpty()) {
-            finishPermissionRequest(context, request)
+            finishPermissionRequest(appContext, request)
         } else {
             onPermissionNeeded(request, missing.toTypedArray())
         }
