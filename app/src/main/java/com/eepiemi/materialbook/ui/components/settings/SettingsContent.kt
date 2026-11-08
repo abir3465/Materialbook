@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.BurstMode
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Diversity1
@@ -64,6 +65,7 @@ fun SettingsContent(
     val enableDownloadContent = viewModel.enableDownloadContent.collectAsState()
     val enableCopyToClipboard = viewModel.enableCopyToClipboard.collectAsState()
     val desktopLayout = viewModel.desktopLayout.collectAsState()
+    val messagesDesktop = viewModel.messagesDesktop.collectAsState()
     val immersiveMode = viewModel.immersiveMode.collectAsState()
     val stickyNavbar = viewModel.stickyNavbar.collectAsState()
     val pinchToZoom = viewModel.pinchToZoom.collectAsState()
@@ -124,6 +126,13 @@ fun SettingsContent(
                     supportingText = stringResource(R.string.force_desktop_layout_may_not_be_suitable_for_smaller_display),
                     isActive = desktopLayout.value,
                     onClick = { if (!isAutoDesktop) viewModel.setDesktopLayout(!desktopLayout.value) }
+                ),
+                SettingsItem(
+                    icon = Icons.AutoMirrored.Outlined.Message,
+                    title = stringResource(R.string.messages_desktop_title),
+                    supportingText = stringResource(R.string.messages_desktop_summary),
+                    isActive = messagesDesktop.value,
+                    onClick = { viewModel.setMessagesDesktop(!messagesDesktop.value) }
                 ),
                 SettingsItem(
                     icon = Icons.Outlined.PanoramaWideAngle,
