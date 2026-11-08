@@ -8,6 +8,8 @@
     <string name="copy_to_clipboard_title">Copy to clipboard</string>
     <string name="desktop_layout_title">Desktop layout</string>
     <string name="immersive_mode_title">Immersive mode</string>
+    <string name="messages_desktop_title">Messages in desktop mode</string>
+    <string name="messages_desktop_summary">Open Messages inside the app using the desktop site (only for that section)</string>
     <string name="sticky_navbar_title">Sticky Navbar</string>
     <string name="pinch_to_zoom_title">Pinch to zoom</string>
     <string name="material_you_title">Material You</string>
