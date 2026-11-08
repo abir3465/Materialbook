@@ -43,6 +43,8 @@ import com.eepiemi.materialbook.ui.viewmodel.SettingsViewModel
 import com.eepiemi.materialbook.utils.DESKTOP_USER_AGENT
 import com.eepiemi.materialbook.utils.ExternalRequestInterceptor
 import com.eepiemi.materialbook.utils.fileChooserWebViewParams
+import com.eepiemi.materialbook.utils.isMessagesUrl
+import com.eepiemi.materialbook.utils.toDesktopMessagesUrl
 import com.eepiemi.materialbook.utils.jsBridge.ClipboardBridge
 import com.eepiemi.materialbook.utils.jsBridge.DownloadBridge
 import com.eepiemi.materialbook.utils.jsBridge.MaterialbookSettings
@@ -225,9 +227,28 @@ fun MaterialbookWebView(
     }
 
 
-    LaunchedEffect(isDesktop) {
-        val userAgent = if (isDesktop) DESKTOP_USER_AGENT else ""
+    // "Messages in desktop mode": the desktop site is used only while a Messages page is open.
+    val messagesDesktop by settingsVM.messagesDesktop.collectAsState()
+    val pageUrl = state.lastLoadedUrl
+    val inMessagesDesktop = messagesDesktop && pageUrl != null && isMessagesUrl(pageUrl)
+    val wantDesktop = isDesktop || inMessagesDesktop
+
+    LaunchedEffect(wantDesktop) {
+        val userAgent = if (wantDesktop) DESKTOP_USER_AGENT else ""
         state.nativeWebView.settings.userAgentString = userAgent
+    }
+
+    var messagesInitialized by remember { mutableStateOf(false) }
+    LaunchedEffect(inMessagesDesktop) {
+        if (!messagesInitialized) {
+            messagesInitialized = true
+            return@LaunchedEffect
+        }
+        if (inMessagesDesktop && pageUrl != null) {
+            navigator.loadUrl(toDesktopMessagesUrl(pageUrl))
+        } else {
+            navigator.reload()
+        }
     }
 
     // needed to consume extra padding when keyboard is open
@@ -253,7 +274,9 @@ fun MaterialbookWebView(
             ),
         state = state,
         navigator = navigator,
-        platformWebViewParams = fileChooserWebViewParams(),
+        platformWebViewParams = fileChooserWebViewParams(
+            allowMediaCapture = { settingsVM.messagesDesktop.value }
+        ),
         captureBackPresses = false,
         onCreated = { webView ->
 
