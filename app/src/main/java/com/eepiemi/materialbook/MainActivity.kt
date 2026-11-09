@@ -1,6 +1,7 @@
 package com.eepiemi.materialbook
 
 import android.os.Bundle
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,8 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val startUrl = intent?.data?.toString()
-            ?.takeIf { it.startsWith("https://x.com/") || it == "https://x.com" }
+        val startUrl = intent?.data?.toString()?.takeIf(::isTrustedStartUrl)
             ?: "https://x.com/"
 
         setContent {
@@ -23,5 +23,14 @@ class MainActivity : ComponentActivity() {
                 XWebViewScreen(startUrl = startUrl)
             }
         }
+    }
+
+    private fun isTrustedStartUrl(value: String): Boolean {
+        val uri = runCatching { Uri.parse(value) }.getOrNull() ?: return false
+        val host = uri.host?.lowercase() ?: return false
+        return uri.scheme == "https" && (
+            host == "x.com" || host.endsWith(".x.com") ||
+                host == "twitter.com" || host.endsWith(".twitter.com")
+            )
     }
 }
