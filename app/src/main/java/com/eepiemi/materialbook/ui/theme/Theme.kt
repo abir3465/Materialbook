@@ -12,16 +12,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    onBackground = Color.White,
-    secondary = Color.DarkGray
+    primary = Color(0xFF9CCAFF),
+    onPrimary = Color(0xFF003258),
+    secondary = Color(0xFFB8C8DA),
+    background = Color(0xFF101418),
+    surface = Color(0xFF101418)
 )
+
 private val LightColorScheme = lightColorScheme(
-    onBackground = Color.Black,
-    secondary = Color.LightGray
+    primary = Color(0xFF0061A4),
+    onPrimary = Color.White,
+    secondary = Color(0xFF52606F),
+    background = Color(0xFFF8F9FF),
+    surface = Color(0xFFF8F9FF)
 )
 
 @Composable
-fun MaterialbookTheme(
+fun XClientTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

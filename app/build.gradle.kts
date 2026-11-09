@@ -18,10 +18,10 @@ extensions.configure<ApplicationExtension> {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.eepiemi.materialbook"
+        applicationId = "com.abir3465.xwebview"
         minSdk = 23
         targetSdk = 36
-        versionCode = 13
+        versionCode = 1
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

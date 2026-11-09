@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
-import com.eepiemi.materialbook.ui.screens.MaterialbookWebView
-import com.eepiemi.materialbook.ui.theme.MaterialbookTheme
+import com.eepiemi.materialbook.ui.screens.XWebViewScreen
+import com.eepiemi.materialbook.ui.theme.XClientTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,13 +14,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val startUrl = intent?.data?.toString()
+            ?.takeIf { it.startsWith("https://x.com/") || it == "https://x.com" }
+            ?: "https://x.com/"
+
         setContent {
-            val intentUrl = intent?.data?.toString()
-            MaterialbookTheme {
-                MaterialbookWebView(
-                    url = intentUrl
-                        ?: "https://x.com/"
-                )
+            XClientTheme {
+                XWebViewScreen(startUrl = startUrl)
             }
         }
     }
