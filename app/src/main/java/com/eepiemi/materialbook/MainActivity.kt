@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
             MaterialbookTheme {
                 MaterialbookWebView(
                     url = intentUrl
-                        ?: "https://facebook.com/"
+                        ?: "https://x.com/"
                 )
             }
         }
