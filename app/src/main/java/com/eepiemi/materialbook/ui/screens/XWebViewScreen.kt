@@ -70,9 +70,6 @@ private val destinations = listOf(
 @Composable
 fun XWebViewScreen(startUrl: String = "https://x.com/") {
     val context = LocalContext.current
-    var pageProgress by remember { mutableIntStateOf(0) }
-    var currentUrl by rememberSaveable { mutableStateOf(startUrl) }
-    var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
     var darkMode by rememberSaveable { mutableStateOf(false) }
     var allowThirdPartyCookies by rememberSaveable { mutableStateOf(false) }
