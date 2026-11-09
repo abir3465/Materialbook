@@ -15,8 +15,8 @@ class ExternalRequestInterceptor(
     ): WebRequestInterceptResult {
 
         val internalUrlRegex = Regex(
-            """https?://(?!(?:l|lm)\.)[^/]*(?:facebook|messenger)\.com/.*"""
-        )
+            """https?://(?:[A-Za-z0-9-]+\.)*(?:x|twitter)\.com/.*"""
+)
         return if (internalUrlRegex.containsMatchIn(request.url) && request.isForMainFrame) {
             WebRequestInterceptResult.Allow
         } else {
