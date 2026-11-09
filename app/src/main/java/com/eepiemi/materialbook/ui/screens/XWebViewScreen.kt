@@ -77,7 +77,9 @@ fun XWebViewScreen(startUrl: String = "https://x.com/") {
     var darkMode by rememberSaveable { mutableStateOf(false) }
     var allowThirdPartyCookies by rememberSaveable { mutableStateOf(false) }
     var swipeDistance by remember { mutableFloatStateOf(0f) }
-
+    var pageProgress by remember { mutableIntStateOf(0) }
+    var currentUrl by remember { mutableStateOf(startUrl) }
+    var selectedDestination by remember { mutableIntStateOf(0) }
     val webView = remember(context) {
         WebView(context).apply {
             settings.apply {
